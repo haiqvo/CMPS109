@@ -65,7 +65,7 @@ public:
           {
             continue;
           }
-          int randomNum = ((1.0*rand()/RAND_MAX)*100)+1;
+          int randomNum = ((1.0*rand()/RAND_MAX)*200)+1;
           edgeList[i].push_back(node(j,randomNum));
           edgeList[j].push_back(node(i,randomNum));
         } 
@@ -85,39 +85,148 @@ private:
 
 };
 
-void dijkstra(vertex_n beginning, vector<vector<node>> &edgeList, 
-              vector<weight_n> &min_distance, vector<vertex_n> &previous){
+void dijkstra(vertex_n beginning, vector<vector<node>> edgeList, 
+              vector<weight_n> &dist, vector<vertex_n> &previous )
+{
   int sizeOf = edgeList.size();
-  min_distance.clear();
-  min_distance.resize(sizeOf, max_weight);
-  min_distance[beginning] = 0;
-  previous.clear();
+  dist.resize(sizeOf, max_weight);
+  dist[beginning] = 0;
   previous.resize(sizeOf, -1);
-  set<pair<weight_n, vertex_n>> vertex_queue;
-  vertex_queue.insert(make_pair(min_distance[beginning], beginning));
-  while (!vertex_queue.empty())
+  set<pair<weight_n, vertex_n>> vQueue;
+  vQueue.insert(make_pair(dist[beginning], beginning));
+  while (!vQueue.empty())
   {
-    weight_n dist = vertex_queue.begin()->first;
-    vertex_n u = vertex_queue.begin()->second;
-    vertex_queue.erase(vertex_queue.begin());
- 
-        // Visit each edge exiting u
-    vector<node> neighbors = edgeList[u];
-    for (int j = 0; j<neighbors.size(); j++)
+    weight_n distEdge = vQueue.begin()->first;
+    vertex_n nextNode = vQueue.begin()->second;
+    vQueue.erase(vQueue.begin());
+
+    vector<node> &nEdge = edgeList[nextNode];
+    for(int i = 0; i<nEdge.size(); i++)
     {
-      vertex_n v = neighbors[j].target;
-      weight_n weight = neighbors[j].weight;
-      weight_n distance_through_u = dist + weight;
-      if (distance_through_u < min_distance[v]) {
-          vertex_queue.erase(make_pair(min_distance[v], v));
+      vertex_n tempNode = nEdge[i].target;
+      weight_n weight = nEdge[i].weight;
+      weight_n distance_across = distEdge + weight;
+      if (distance_across < dist[tempNode]) {
+        vQueue.erase(make_pair(dist[tempNode], tempNode));
  
-          min_distance[v] = distance_through_u;
-          previous[v] = u;
-          vertex_queue.insert(make_pair(min_distance[v], v));
+        dist[tempNode] = distance_across;
+        previous[tempNode] = nextNode;
+        vQueue.insert(make_pair(dist[tempNode], tempNode));
  
       }
     }
   }
+
+}
+
+void bidirectional (vector<vector<node>> edgeList, int beginning, int end)
+{
+  int sizeOf = edgeList.size();
+  bool inMiddle = false;
+  set<pair<weight_n, vertex_n>> vQueueF;
+  
+  set<pair<weight_n, vertex_n>> vQueueB;
+
+  vector<weight_n> distF;
+  distF.resize(sizeOf, max_weight);
+  distF[beginning] = 0;
+  vector<bool> visitedF(sizeOf, false);
+
+  vector<vertex_n> previousF;
+  previousF.resize(sizeOf, -1);
+
+  vector<weight_n> distB;
+  distB.resize(sizeOf, max_weight);
+  distB[end] = 0;
+  vector<bool> visitedB(sizeOf, false);
+
+  vector<vertex_n> previousB;
+  previousB.resize(sizeOf, -1);
+
+  vQueueF.insert(make_pair(distF[beginning], beginning));
+  vQueueB.insert(make_pair(distB[end], end));
+  vertex_n nextNodeF, nextNodeB;
+  weight_n distEdgeF, distEdgeB;
+
+  for(int i = 0; i < sizeOf; ++i)
+  {
+    do
+    {
+    distEdgeF = vQueueF.begin()->first;
+    nextNodeF = vQueueF.begin()->second;
+    vQueueF.erase(vQueueF.begin());
+    }while(visitedF[nextNodeF] == true);
+
+    visitedF[nextNodeF] = true;
+
+    vector<node> &nEdge = edgeList[nextNodeF];
+    for(int i = 0; i<nEdge.size(); i++)
+    {
+      vertex_n tempNode = nEdge[i].target;
+      weight_n weight = nEdge[i].weight;
+      weight_n distance_across = distEdgeF + weight;
+      if (distance_across < distF[tempNode]) {
+        vQueueF.erase(make_pair(distF[tempNode], tempNode));
+ 
+        distF[tempNode] = distance_across;
+        previousF[tempNode] = nextNodeF;
+        vQueueF.insert(make_pair(distF[tempNode], tempNode));
+ 
+      }
+    }
+
+
+    do
+    {
+    distEdgeB = vQueueB.begin()->first;
+    nextNodeB = vQueueB.begin()->second;
+    vQueueB.erase(vQueueB.begin());
+    }while(visitedB[nextNodeB] == true);
+
+    visitedB[nextNodeB] = true;
+
+    vector<node> &nEdgeB = edgeList[nextNodeB];
+    for(int i = 0; i<nEdgeB.size(); i++)
+    {
+      vertex_n tempNode = nEdgeB[i].target;
+      weight_n weight = nEdgeB[i].weight;
+      weight_n distance_across = distEdgeB + weight;
+      if (distance_across < distB[tempNode]) {
+        vQueueB.erase(make_pair(distB[tempNode], tempNode));
+ 
+        distB[tempNode] = distance_across;
+        previousB[tempNode] = nextNodeB;
+        vQueueB.insert(make_pair(distB[tempNode], tempNode));
+ 
+      }
+    }
+
+    for(int j = 0; j != sizeOf; ++j)
+    {
+      if(visitedF[j] && visitedB[j])
+      {
+        inMiddle = true;
+      }
+    }
+
+    if(inMiddle) break;
+  }
+
+  int min = numeric_limits<int>::max();
+  for(int i = 0; i < sizeOf; ++i)
+  {
+    if(visitedF[i] == true)
+    {
+      if(distF[i] + distB[i] < min)
+      {
+      min = distF[i] + distB[i]; 
+      }
+    }
+  }
+  
+  //cout << "the min: " << min << endl;
+
+
 }
 
 
@@ -140,20 +249,42 @@ void print_distance( vector<weight_n> v)
   }
 }
 
+list<vertex_n> DijkstraGetShortestPathTo(
+    vertex_n vertex, const std::vector<vertex_n> &previous)
+{
+    std::list<vertex_n> path;
+    for ( ; vertex != -1; vertex = previous[vertex])
+        path.push_front(vertex);
+    return path;
+}
+
 int main()
 {
-   //set the random base on time
-   srand(time(0)); 
-   cout << "Test simple graph generation" << endl;
-   graph test1(5, 0.3);
-   print_edgeList(test1.edgeList);
-   vector<weight_n> min_distance;
-   vector<vertex_n> previous;
-   dijkstra(0, test1.edgeList, min_distance, previous);
-   print_distance( min_distance );
-   cout << "Distance from 0 to 4: " << min_distance[4] << endl;
-   cout << endl << "END of TEST 1" << endl << endl;
+  //set the random base on time
+  srand(time(0)); 
+  cout << "Test simple graph generation" << endl;
 
+  clock_t t;
+  float dijkstraTime = 0;
+  float bidirectionalTime = 0;
+  for(int i = 0; i < 100; i++)
+  {
+    int startNode = (1.0*rand()/RAND_MAX)*1000;
+    int endNode = (1.0*rand()/RAND_MAX)*1000;
+    graph test1(1000, 0.1);
+    vector<weight_n> min_distance;
+    vector<vertex_n> previous;
+    t = clock();
+    dijkstra(startNode, test1.edgeList, min_distance, previous);
+    t = clock() - t;
+    dijkstraTime += t/10000;
+    t = clock();
+    bidirectional (test1.edgeList, startNode, endNode);
+    t = clock() - t;
+    bidirectionalTime += t/10000;
+  }
+   cout << "dijkstra time: " << dijkstraTime << endl;
+   cout << "bidirectionalTime: " << bidirectionalTime << endl;
    return 0;
 }
 
