@@ -36,13 +36,16 @@ public:
    			i->resize(size);
       		for(auto j = i->begin(); j != i->end(); ++j)
       		{
-          		if(probability()< d){
+          		if(probability()< d)
+              {
           			*j = true;
-          		} else {
+          		} 
+              else 
+              {
           			*j = false;
           		}
       		}
-      	}
+      }
 	}
 
 };

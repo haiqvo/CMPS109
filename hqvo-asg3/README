@@ -1,16 +1,21 @@
 *************************************************************
 CMPS109
-Converting a C graph program to a C++ one.
+HW3 Bidirectional Shortest Path algorithm.
 *************************************************************
-The assignment is to convert a graph program to a 
-C++ program. Changing the comment to a // format, fixing the 
-header, changing the array to C++'s vector, using class, and 
-fixing the print statements.
 
-In this assignment I learn about namespaces and how to use it 
-in C++. I also learned about how to cast a type in C++ and finally 
-how to use vectors in C++ instead of now arrays. I also learn to 
-use classes.
+*WARNING THERE IS A LONG RUN TIME*
+*IT WORKS*
+
+The assignment is to use asg2's graph class and perform 
+a bidirectional search on it. The first thing that change is 
+the 2D vector is changed into a edge list. There are also two
+functions one normal dijkstra and on bidirectional dijkstra, they
+are used to test the differents between the two make performing
+200 search each.
+
+this assignment involve learning how to use find_if, sets, pair, 
+and clock. I also learn how to make a bidirectional search. Sets 
+and pairs could have been switched with queues.    
 
 How To Run:
 Unzip it to a folder and make sure the Makefile and graph.cc file

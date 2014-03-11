@@ -1,0 +1,15 @@
+************************************************************
+CMPS109
+HW4 HEX BOARD
+*************************************************************
+
+This assignment is to make a hex board and fill it up will turns
+made by 2 player in this example I chose black and white pieces. So 
+to make it easier for the next step the program already keeps track 
+of the neighbors by pointing to it to make it easier to determine a 
+winner. 
+
+How To Run:
+Unzip it to a folder and make sure the Makefile and hexboard.cc file
+is in the same folder than go to the console and cd into the 
+folder and type 'gmake all'.
