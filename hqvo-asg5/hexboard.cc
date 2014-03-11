@@ -90,44 +90,13 @@ public:
       temp->surroundNode.push_back(&g1[tempI][tempJ]);
    }
 
-/*
-   //the movement for the game
-   void movement()
-   {
-      //gets the number of nodes there are 11*11=121 nodes
-      int numberNode = size*size;
-      //randomly shuffle all of the positions (initialize in the constructor)
-      shuffle(position.begin(), position.end(), default_random_engine(time(0)) );
-      //how I keep track whos turn it is
-      int count = 1;
-      //goes through all of the position 
-      while(!position.empty())
-      {
-         int i = position.back().first;
-         int j = position.back().second;
-         position.pop_back();
-         //even is blacks turn and it will get a shuffle position and make it black
-         if(count%2 == 0)
-         {
-            g1[i][j].color = black;
-         }
-         else
-         {
-            g1[i][j].color = white;
-         }
-         count++; 
 
-      }
-      
-   }
-*/
-
-  int playAIgame(colors_t AIcolor) {
+  int playAIgame(colors_t AIcolor, int xCoor, int yCoor) {
     int winNum = 0;
     int count = 1;
     for(int k=0; k<1000; k++) {
       shuffle(position.begin(), position.end(), default_random_engine(time(0)));
-      
+      g1[xCoor][yCoor].color = AIcolor;
       count = 1;
       if(AIcolor == white) count = 0;
 
@@ -137,6 +106,9 @@ public:
          int i = position[m].first;
          int j = position[m].second;
          //even is blacks turn and it will get a shuffle position and make it black
+         if(g1[i][j].color != empty){
+            continue;
+         }
          if(count%2 == 0)
          {
             g1[i][j].color = black;
@@ -148,6 +120,12 @@ public:
          count++;
       }
       if( searchForWinner(true) == AIcolor) winNum++;
+      for(int a=0; a<11; a++) {
+         for(int b=0; b<11; b++) {
+            g1[a][b] = g1copy[a][b];
+            g1[a][b].visited = false;
+         }
+      }
     }
     return winNum;
   }
@@ -156,7 +134,6 @@ public:
     vector< vector<int> > wincount;
     g1copy.resize(11);
     wincount.resize(11);
-    cout << "finishes a resize." << endl;
     for(int i=0; i<11; i++) {
       g1copy[i].resize(11);
       wincount[i].resize(11);
@@ -165,15 +142,11 @@ public:
         wincount[i][j] = 0;
       }
     }
-    cout << "finishes resizes." << endl;
 
     for(int i=0; i<11; i++) {
       for(int j=0; j<11; j++) {
         if(g1[i][j].color == empty) {
-          g1[i][j].color = AIcolor;
-          wincount[i][j] = playAIgame(AIcolor);
-
-          cout << wincount[i][j] << endl; //TESTCODE
+          wincount[i][j] = playAIgame(AIcolor, i, j);
 
           //loop returns g1 to its original boardstate
           for(int i=0; i<11; i++) {
@@ -221,7 +194,7 @@ public:
                //return the winner is the end is reach 
                //else the other one is the winner
                if(tempY == size-1){
-                  return white; //White
+                  return white;
                }
                //checks the neighbor
                for(auto i : g1[tempX][tempY].surroundNode)
@@ -262,7 +235,7 @@ public:
                  //return the winner is the end is reach 
                  //else the other one is the winner
                  if(tempX == size-1){
-                    return black; //Black
+                    return black;
                  }
                  //checks the neighbor
                  for(auto i : g1[tempX][tempY].surroundNode)
@@ -312,6 +285,7 @@ private:
    //the hex board
    vector<vector<node>> g1;
    vector<vector<node>> g1copy;
+   vector<colors_t> boardColor;
    vector<pair<int,int>> position;
 };
 
@@ -356,22 +330,22 @@ int main()
    graph test1(11);
 
    int count = 0;
-   while(test1.searchForWinner(false) == empty) {
+   colors_t winrar = empty;
+   while(winrar == empty) {
 
      if(count%2 == 0) {
        test1.playerMovement(Pcolor);
      } else {
-       cout << "Enters else." << endl;
        test1.newMovement(AIcolor);
      }
 
      cout << test1;
+     winrar = test1.searchForWinner(false);
      count++;
    }
 
    cout << test1;
    string winnar = "";
-   colors_t winrar = test1.searchForWinner(false);
    if(winrar != Pcolor && winrar != AIcolor) winnar = "nobody?";
    if(winrar == Pcolor)  winnar = "you!";
    if(winrar == AIcolor) winnar = "the AI.";
