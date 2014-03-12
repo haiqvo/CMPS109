@@ -263,6 +263,15 @@ void key(unsigned char key, int a, int b){
 
   }
 
+
+}
+
+void onMouseButton(int button, int state, int x, int y){
+  switch(button){
+    case GLUT_LEFT_BUTTON:   
+      cout << "x : " << x << " y : " << y << endl;   
+      break;
+  }
 }
 
 int main(int argc, char **argv){
@@ -286,6 +295,7 @@ int main(int argc, char **argv){
       
     glutKeyboardFunc(key);
     glutDisplayFunc(drawStuff); //Callback for the current window
+    glutMouseFunc(onMouseButton);
     glutIdleFunc(idle);
     glutMainLoop();
     
